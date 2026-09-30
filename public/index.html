@@ -1,1 +1,118 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>해커스 송년회 리액션</title>
+<style>
+*{box-sizing:border-box}
+body{
+margin:0;
+background:#fff;
+font-family:Arial,"Noto Sans KR",sans-serif;
+color:#111;
+display:flex;
+min-height:100vh;
+align-items:center;
+justify-content:center
+}
+.wrap{
+width:min(92vw,520px);
+text-align:center;
+padding:28px 16px
+}
+.logo{
+font-weight:800;
+font-size:24px;
+margin-bottom:8px
+}
+.sub{
+color:#666;
+font-size:14px;
+margin-bottom:28px
+}
+.buttons{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:12px
+}
+.btn{
+border:0;
+border-radius:22px;
+background:#f4f4f6;
+padding:20px 8px;
+font-size:52px;
+cursor:pointer;
+box-shadow:0 2px 8px #00000012;
+touch-action:manipulation
+}
+.btn:active{
+transform:scale(.94)
+}
+.note{
+font-size:12px;
+color:#999;
+margin-top:20px
+}
+.toast{
+position:fixed;
+left:50%;
+bottom:28px;
+transform:translateX(-50%);
+background:#111;
+color:#fff;
+padding:10px 16px;
+border-radius:999px;
+opacity:0;
+transition:.2s
+}
+.toast.show{
+opacity:1
+}
+</style>
+</head>
 
+<body>
+
+<div class="wrap">
+  <div class="logo">HACKERS YEAR-END PARTY</div>
+  <div class="sub">지금 마음에 드는 반응을 눌러주세요!</div>
+
+  <div class="buttons">
+    <button class="btn" onclick="react('heart')">❤️</button>
+    <button class="btn" onclick="react('like')">👍</button>
+    <button class="btn" onclick="react('cool')">😎</button>
+  </div>
+
+  <div class="note">앱 설치·로그인 없이 바로 참여할 수 있습니다.</div>
+</div>
+
+<div id="toast" class="toast">전송 완료!</div>
+
+<script>
+let busy=false;
+
+async function react(type){
+  if(busy)return;
+  busy=true;
+
+  try{
+    const r=await fetch('/api/react',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({type})
+    });
+
+    if(r.ok){
+      const t=document.getElementById('toast');
+      t.classList.add('show');
+      setTimeout(()=>t.classList.remove('show'),500);
+    }
+  }finally{
+    setTimeout(()=>busy=false,180);
+  }
+}
+</script>
+
+</body>
+</html>

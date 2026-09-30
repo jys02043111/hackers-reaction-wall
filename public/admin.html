@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>해커스 리액션 관리자</title>
+<style>
+body{margin:0;font-family:Arial,"Noto Sans KR",sans-serif;background:#f6f7f9;color:#111}.wrap{max-width:900px;margin:0 auto;padding:28px 18px}.card{background:#fff;border-radius:20px;padding:22px;margin-bottom:18px;box-shadow:0 4px 20px #0000000d}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}@media(max-width:700px){.grid{grid-template-columns:1fr}}h1{margin:0 0 8px}.muted{color:#777}.qr{width:min(100%,420px);display:block;margin:auto}.counts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.count{background:#f4f4f6;border-radius:16px;padding:18px;text-align:center;font-size:28px}.btn{border:0;border-radius:12px;padding:12px 16px;cursor:pointer;margin-right:8px}.primary{background:#111;color:#fff}.danger{background:#eee}.url{word-break:break-all;background:#f4f4f6;padding:10px;border-radius:10px}
+</style>
+</head>
+<body><div class="wrap">
+<div class="card"><h1>해커스 송년회 리액션 관리자</h1><div class="muted">관객은 아래 QR을 스캔해서 ❤️ 👍 😎 중 하나를 누릅니다.</div></div>
+<div class="grid">
+<div class="card"><img id="qr" class="qr" src="/qr"><div class="url" id="url">불러오는 중...</div></div>
+<div class="card">
+<h2>실시간 반응</h2><div class="counts">
+<div class="count">❤️<br><span id="heart">0</span></div><div class="count">👍<br><span id="like">0</span></div><div class="count">😎<br><span id="cool">0</span></div>
+</div><p><a class="btn primary" href="/display" target="_blank">화면용 리액션 열기</a></p>
+<button class="btn danger" onclick="resetCounts()">카운트 초기화</button>
+</div></div>
+</div>
+<script>
+let key=new URLSearchParams(location.search).get('key')||localStorage.adminKey||'';
+if(key)localStorage.adminKey=key;
+function set(c){heart.textContent=c.heart;like.textContent=c.like;cool.textContent=c.cool}
+fetch('/api/config').then(r=>r.json()).then(d=>{url.textContent=d.publicUrl;set(d.counts)});
+const ws=new WebSocket((location.protocol==='https:'?'wss':'ws')+'://'+location.host);
+ws.onmessage=e=>{const d=JSON.parse(e.data);if(d.counts)set(d.counts)};
+async function resetCounts(){const k=prompt('관리자 키를 입력하세요',key);if(k===null)return;key=k;localStorage.adminKey=k;const r=await fetch('/api/reset',{method:'POST',headers:{'x-admin-key':k}});if(r.ok)alert('초기화했습니다.');else alert('관리자 키가 올바르지 않습니다.')}
+</script>
+</body></html>

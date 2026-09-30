@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: hackers-reaction-wall
+    runtime: node
+    plan: starter
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: ADMIN_KEY
+        sync: false
+      - key: PUBLIC_URL
+        sync: false
